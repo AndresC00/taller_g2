@@ -1,11 +1,6 @@
-# prompt: antes instala streamlit 
-
-!pip install streamlit plotly pandas seaborn matplotlib
-
-import streamlit as st
-import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import streamlit as st
 
 # Cargar dataset de propinas
 df = sns.load_dataset("tips")
@@ -14,20 +9,30 @@ df = sns.load_dataset("tips")
 st.title("Análisis de Propinas")
 st.write("Este dashboard muestra análisis del dataset de propinas en un restaurante.")
 
-# Seleccionar día de la semana
-dias = df['day'].unique()
-dia_seleccionado = st.selectbox("Selecciona un día:", dias)
+# Selección de opciones para gráficos
+tipo_grafico = st.selectbox("Selecciona un tipo de gráfico:", ["Histograma", "Scatter Plot", "Box Plot", "Violin Plot"])
 
-df_dia = df[df['day'] == dia_seleccionado]
+if tipo_grafico == "Histograma":
+    columna = st.selectbox("Selecciona una columna:", ["total_bill", "tip", "size"])
+    fig, ax = plt.subplots()
+    sns.histplot(df[columna], kde=True, ax=ax)
+    st.pyplot(fig)
 
-# Gráfico de relación entre total de la cuenta y propina
-st.subheader(f"Relación entre total de cuenta y propina en {dia_seleccionado}")
-fig, ax = plt.subplots()
-sns.scatterplot(data=df_dia, x='total_bill', y='tip', hue='sex', ax=ax)
-ax.set_xlabel("Total de la cuenta (USD)")
-ax.set_ylabel("Propina (USD)")
-st.pyplot(fig)
+elif tipo_grafico == "Scatter Plot":
+    x_col = st.selectbox("Selecciona la columna para el eje X:", ["total_bill", "tip", "size"])
+    y_col = st.selectbox("Selecciona la columna para el eje Y:", ["total_bill", "tip", "size"])
+    fig, ax = plt.subplots()
+    sns.scatterplot(data=df, x=x_col, y=y_col, hue="sex", ax=ax)
+    st.pyplot(fig)
 
-# Mostrar tabla de datos filtrados
-st.subheader("Datos Filtrados")
-st.dataframe(df_dia)
+elif tipo_grafico == "Box Plot":
+    columna = st.selectbox("Selecciona una columna:", ["total_bill", "tip", "size"])
+    fig, ax = plt.subplots()
+    sns.boxplot(x="day", y=columna, data=df, ax=ax)
+    st.pyplot(fig)
+
+elif tipo_grafico == "Violin Plot":
+    columna = st.selectbox("Selecciona una columna:", ["total_bill", "tip", "size"])
+    fig, ax = plt.subplots()
+    sns.violinplot(x="day", y=columna, data=df, ax=ax)
+    st.pyplot(fig)
