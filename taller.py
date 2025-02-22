@@ -1,26 +1,31 @@
+import streamlit as st
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-import plotly.express as px
-import streamlit as st
 
-# URL del conjunto de datos en formato CSV
-url = "https://www.datos.gov.co/resource/y628-5q9a.csv"
+# Cargar dataset público
+df = pd.read_csv("https://raw.githubusercontent.com/datasets/gdp/master/data/gdp.csv")
 
-# Cargar los datos en un DataFrame
-df = pd.read_csv(url)
+# Filtrar datos recientes
+df = df[df['Year'] >= 2000]
 
-# Filtrar las columnas relevantes
-df = df[['condicion_victima']].dropna() # Select only one 'condicion_victima' column
+# Configurar la app de Streamlit
+st.title("Visualización de Datos Económicos")
+st.write("Este dashboard muestra la evolución del PIB de diferentes países desde el año 2000.")
 
-# Count the occurrences of each victim condition
-condition_counts = df['condicion_victima'].value_counts()
+# Seleccionar país
+paises = df['Country Name'].unique()
+pais_seleccionado = st.selectbox("Selecciona un país:", paises)
 
-# Create a bar chart using Plotly Express
-fig = px.bar(
-    x=condition_counts.index, 
-    y=condition_counts.values,
-    labels={'x': 'Condición de la Víctima', 'y': 'Cantidad de Casos'},
-    title='Condición de la Víctima'
-)
-st.plotly_chart(fig)
+df_pais = df[df['Country Name'] == pais_seleccionado]
+
+# Gráfico de evolución del PIB
+st.subheader(f"Evolución del PIB en {pais_seleccionado}")
+fig, ax = plt.subplots()
+sns.lineplot(data=df_pais, x='Year', y='Value', ax=ax)
+ax.set_ylabel("PIB en USD")
+st.pyplot(fig)
+
+# Mostrar tabla de datos
+st.subheader("Datos del PIB")
+st.dataframe(df_pais)
