@@ -1,31 +1,33 @@
+# prompt: antes instala streamlit 
+
+!pip install streamlit plotly pandas seaborn matplotlib
+
 import streamlit as st
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# Cargar dataset público
-df = pd.read_csv("https://raw.githubusercontent.com/datasets/gdp/master/data/gdp.csv")
-
-# Filtrar datos recientes
-df = df[df['Year'] >= 2000]
+# Cargar dataset de propinas
+df = sns.load_dataset("tips")
 
 # Configurar la app de Streamlit
-st.title("Visualización de Datos Económicos")
-st.write("Este dashboard muestra la evolución del PIB de diferentes países desde el año 2000.")
+st.title("Análisis de Propinas")
+st.write("Este dashboard muestra análisis del dataset de propinas en un restaurante.")
 
-# Seleccionar país
-paises = df['Country Name'].unique()
-pais_seleccionado = st.selectbox("Selecciona un país:", paises)
+# Seleccionar día de la semana
+dias = df['day'].unique()
+dia_seleccionado = st.selectbox("Selecciona un día:", dias)
 
-df_pais = df[df['Country Name'] == pais_seleccionado]
+df_dia = df[df['day'] == dia_seleccionado]
 
-# Gráfico de evolución del PIB
-st.subheader(f"Evolución del PIB en {pais_seleccionado}")
+# Gráfico de relación entre total de la cuenta y propina
+st.subheader(f"Relación entre total de cuenta y propina en {dia_seleccionado}")
 fig, ax = plt.subplots()
-sns.lineplot(data=df_pais, x='Year', y='Value', ax=ax)
-ax.set_ylabel("PIB en USD")
+sns.scatterplot(data=df_dia, x='total_bill', y='tip', hue='sex', ax=ax)
+ax.set_xlabel("Total de la cuenta (USD)")
+ax.set_ylabel("Propina (USD)")
 st.pyplot(fig)
 
-# Mostrar tabla de datos
-st.subheader("Datos del PIB")
-st.dataframe(df_pais)
+# Mostrar tabla de datos filtrados
+st.subheader("Datos Filtrados")
+st.dataframe(df_dia)
